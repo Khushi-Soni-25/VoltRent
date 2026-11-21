@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offline — VoltRide</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --amber: #F5C518; --black: #080808; --surface: #111214; --text: #EDEDED; --text2: #A0A0A8; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--black); color: var(--text);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1.5rem; padding: 2rem; text-align: center;
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem; font-weight: 900; letter-spacing: 2px;
+    color: var(--amber);
+  }
+  .bolt { font-size: 4rem; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.95)} }
+  h1 { font-family:'Barlow Condensed',sans-serif; font-size:2.5rem; font-weight:800; }
+  p { color: var(--text2); font-size: 0.95rem; max-width: 300px; line-height: 1.6; }
+  .card {
+    background: var(--surface); border: 1px solid #252629;
+    border-radius: 12px; padding: 1.5rem; max-width: 320px; width: 100%;
+  }
+  .card-title { font-size:0.75rem; font-weight:700; color:var(--amber); text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; }
+  .tip { font-size:0.85rem; color:var(--text2); padding:8px 0; border-bottom:1px solid #252629; }
+  .tip:last-child { border-bottom:none; }
+  .btn {
+    display: inline-block; margin-top: 1.5rem;
+    background: var(--amber); color: #000; font-weight:700;
+    padding: 12px 28px; border-radius: 8px; text-decoration:none;
+    font-size: 0.9rem; border:none; cursor:pointer;
+  }
+  .status { font-size:0.8rem; color:var(--text2); margin-top:0.5rem; }
+</style>
+</head>
+<body>
+  <div class="logo">⚡ VOLTRIDE</div>
+  <div class="bolt">📡</div>
+  <h1>YOU'RE OFFLINE</h1>
+  <p>No internet connection right now. Your data is saved locally and will sync when you're back online.</p>
+
+  <div class="card">
+    <div class="card-title">What still works offline</div>
+    <div class="tip">✅ View your previous requests</div>
+    <div class="tip">✅ Check your profile</div>
+    <div class="tip">✅ Browse already-loaded pages</div>
+    <div class="tip">⏳ New requests will sync when online</div>
+  </div>
+
+  <button class="btn" onclick="tryReload()">🔄 Try Again</button>
+  <div class="status" id="status-msg">Checking connection...</div>
+
+  <script>
+    function tryReload() {
+      document.getElementById('status-msg').textContent = 'Checking...';
+      fetch('index.html').then(function() {
+        window.location.href = 'index.html';
+      }).catch(function() {
+        document.getElementById('status-msg').textContent = 'Still offline. Please check your connection.';
+      });
+    }
+    // Auto-check every 5 seconds
+    setInterval(function() {
+      if (navigator.onLine) {
+        document.getElementById('status-msg').textContent = '✅ Back online! Redirecting...';
+        setTimeout(function() { window.location.href = 'index.html'; }, 1000);
+      }
+    }, 5000);
+    window.addEventListener('online', function() {
+      document.getElementById('status-msg').textContent = '✅ Back online! Redirecting...';
+      setTimeout(function() { window.location.href = 'index.html'; }, 800);
+    });
+  </script>
+</body>
+</html>

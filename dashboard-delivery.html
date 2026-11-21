@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Dashboard — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="tb5-dark" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" id="tb5-light" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" id="tb5-ev" onclick="setTheme('ev')">⚡</button>
+      </div>
+      <div class="nav-pill"><span>🏍️</span><strong id="agn-name">Agent</strong></div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-label">Agent</div>
+      <div class="sitem on" onclick="dsDelivery('home',this)"><span class="sicon">🏠</span><span class="slabel">Dashboard</span></div>
+      <div class="sitem" onclick="dsDelivery('assign',this)"><span class="sicon">📦</span><span class="slabel">Assignments</span></div>
+      <div class="sitem" onclick="dsDelivery('nav',this)"><span class="sicon">🗺️</span><span class="slabel">Navigation</span></div>
+      <div class="sitem" onclick="dsDelivery('history',this)"><span class="sicon">📜</span><span class="slabel">History</span></div>
+    </div>
+    <div class="smain">
+      <div class="dsec on" id="agd-home">
+        <div class="sec-head">Agent Dashboard</div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-val" id="ag-ass">0</div><div class="stat-key">Assigned Today</div></div>
+          <div class="stat"><div class="stat-val" id="ag-done">0</div><div class="stat-key">Completed</div></div>
+          <div class="stat"><div class="stat-val" id="ag-earn">₹0</div><div class="stat-key">Earnings</div></div>
+          <div class="stat">
+            <div class="stat-val" id="ag-status-val">🟢</div>
+            <div class="stat-key">Status</div>
+            <button class="btn btn-surface btn-sm" style="margin-top:6px;" onclick="toggleAgent()">Toggle</button>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-head">📦 Active Assignments</div>
+          <div id="ag-active"></div>
+        </div>
+      </div>
+
+      <div class="dsec" id="agd-assign">
+        <div class="sec-head">Assignments</div>
+        <div id="ag-all-assign"></div>
+      </div>
+
+      <div class="dsec" id="agd-nav">
+        <div class="sec-head">Navigation Map</div>
+        <div class="map-box mb-3" style="height:400px;">
+          <div id="agent-map" style="height:400px;width:100%;"></div>
+          <div class="map-overlay-btn">
+            <button class="gps-btn" onclick="agentUpdateLoc()">📍 Update My Location</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Delivery Waypoints</div>
+          <div class="location-bar"><div class="location-dot active"></div><div class="location-text set">Pickup: Dealer at Satellite, Ahmedabad</div></div>
+          <div class="location-bar mt-2"><div class="location-dot" id="dlv-dest-dot"></div><div class="location-text" id="dlv-dest-txt">Destination: Waiting for assignment...</div></div>
+        </div>
+      </div>
+
+      <div class="dsec" id="agd-history">
+        <div class="sec-head">Delivery History</div>
+        <div id="ag-hist"></div>
+      </div>
+    </div>
+  </div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/delivery.js"></script>
+<script src="js/auth.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var user = requireAuth('delivery');
+  if (!user) return;
+  document.getElementById('agn-name').textContent = user.name;
+
+  // Small delay to allow DB fetch in requireAuth to complete
+  // if this is a user registered via website (not in localStorage)
+  refreshAStats();
+  setTimeout(function() {
+    // Refresh again after 1.5s to catch DB-loaded user ID
+    if (S.cu && S.cu.id) refreshAStats();
+  }, 1500);
+});
+</script>
+<script src="js/pwa.js"></script>
+
+</body>
+</html>

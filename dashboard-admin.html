@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="tb6-dark" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" id="tb6-light" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" id="tb6-ev" onclick="setTheme('ev')">⚡</button>
+      </div>
+      <div class="nav-pill"><span>🛡️</span><strong>Admin</strong></div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-label">Admin</div>
+      <div class="sitem on" onclick="dsAdmin('home',this)"><span class="sicon">🏠</span><span class="slabel">Overview</span></div>
+      <div class="sitem" onclick="dsAdmin('users',this)"><span class="sicon">👥</span><span class="slabel">Users</span></div>
+      <div class="sitem" onclick="dsAdmin('dealers',this)"><span class="sicon">🏪</span><span class="slabel">Dealers</span></div>
+      <div class="sitem" onclick="dsAdmin('allreq',this)"><span class="sicon">📋</span><span class="slabel">All Requests</span></div>
+      <div class="sitem" onclick="dsAdmin('agents',this)"><span class="sicon">🚚</span><span class="slabel">Agents</span></div>
+      <div class="sitem" onclick="dsAdmin('sysmap',this)"><span class="sicon">🗺️</span><span class="slabel">System Map</span></div>
+      <div class="sitem" onclick="dsAdmin('settings',this)"><span class="sicon">⚙️</span><span class="slabel">Settings</span></div>
+      <div class="sitem" onclick="dsAdmin('ai',this)"><span class="sicon">AI</span><span class="slabel">AI Insights</span></div>
+    </div>
+    <div class="smain">
+      <div class="dsec on" id="ad-home">
+        <div class="sec-head">Admin Panel</div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-val" id="a-users">0</div><div class="stat-key">Users</div></div>
+          <div class="stat"><div class="stat-val" id="a-dealers">0</div><div class="stat-key">Dealers</div></div>
+          <div class="stat"><div class="stat-val" id="a-agents">0</div><div class="stat-key">Agents</div></div>
+          <div class="stat"><div class="stat-val" id="a-reqs">0</div><div class="stat-key">Requests</div></div>
+          <div class="stat"><div class="stat-val">₹8.2K</div><div class="stat-key">Revenue Today</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">System Health</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="flex justify-between items-center text-sm"><span>API Services</span><span class="badge b-delivered">🟢 Online</span></div>
+              <div class="flex justify-between items-center text-sm"><span>Database</span><span class="badge b-delivered">🟢 Connected</span></div>
+              <div class="flex justify-between items-center text-sm"><span>GPS Tracking</span><span class="badge b-delivered">🟢 Active</span></div>
+              <div class="flex justify-between items-center text-sm"><span>Payment Gateway</span><span class="badge b-delivered">🟢 Ready</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head">Live Stats</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="flex justify-between text-sm"><span class="text-muted">Pending Requests</span><span id="a-live-pend" class="text-amber font-bold">0</span></div>
+              <div class="flex justify-between text-sm"><span class="text-muted">Active Deliveries</span><span id="a-live-del" class="text-amber font-bold">0</span></div>
+              <div class="flex justify-between text-sm"><span class="text-muted">Agents Online</span><span class="text-green font-bold" id="a-live-agents">1</span></div>
+              <div class="flex justify-between text-sm"><span class="text-muted">Avg Response</span><span>28 min</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dsec" id="ad-users">
+        <div class="sec-head">Registered Users</div>
+        <div class="card tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Vehicle</th><th>Role</th><th>Action</th></tr></thead><tbody id="a-users-tbl"></tbody></table></div>
+      </div>
+      <div class="dsec" id="ad-dealers">
+        <div class="sec-head">Dealers</div>
+        <div class="card tbl-wrap"><table><thead><tr><th>ID</th><th>Shop</th><th>Address</th><th>Stock</th><th>Status</th><th>Action</th></tr></thead><tbody id="a-dealers-tbl"></tbody></table></div>
+      </div>
+      <div class="dsec" id="ad-allreq">
+        <div class="sec-head">All Requests</div>
+        <div class="card tbl-wrap"><table><thead><tr><th>ID</th><th>User</th><th>Service</th><th>Location</th><th>Priority</th><th>Status</th><th>Time</th></tr></thead><tbody id="a-reqs-tbl"></tbody></table></div>
+      </div>
+      <div class="dsec" id="ad-agents">
+        <div class="sec-head">Delivery Agents</div>
+        <div class="card tbl-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Vehicle</th><th>Area</th><th>Status</th></tr></thead><tbody id="a-agents-tbl"></tbody></table></div>
+      </div>
+      <div class="dsec" id="ad-sysmap">
+        <div class="sec-head">System Map — All Active Requests</div>
+        <div class="map-box" style="height:500px;"><div id="sys-map" style="height:500px;width:100%;"></div></div>
+      </div>
+      <div class="dsec" id="ad-ai">
+        <div class="sec-head">AI Insights</div>
+        <div class="alert alert-info show">
+          AI features are optional enhancements. Dealer recommendation can use real dealer stock when MySQL is available. Health and demand models are prototype outputs trained on synthetic development data, not production-validated predictions.
+        </div>
+        <div class="card mb-4">
+          <div class="card-head">AI Data Summary</div>
+          <div id="ai-summary-box"></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">Real Data Recommendation</div>
+            <div class="text-sm text-muted mb-3">Uses existing dealer stock and location fields when the live database is available.</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Service Type</label>
+                <select class="field-input" id="ai-rec-service">
+                  <option value="replacement">Battery Replacement</option>
+                  <option value="swap">Battery Swap</option>
+                  <option value="charger">Portable Charger</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Priority</label>
+                <select class="field-input" id="ai-rec-priority">
+                  <option value="normal">Normal</option>
+                  <option value="express">Express</option>
+                  <option value="emergency">Emergency</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>User Latitude</label><input class="field-input" id="ai-rec-lat" value="23.0225"></div>
+              <div class="field"><label>User Longitude</label><input class="field-input" id="ai-rec-lng" value="72.5714"></div>
+            </div>
+            <button class="btn btn-amber btn-sm" onclick="runAiRecommendation()">Run Recommendation</button>
+            <div id="ai-rec-result" class="mt-3"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">Future ML Readiness</div>
+            <div class="text-sm text-muted mb-3">Current database volume is too small for production ML training. Future requests can become demand training data after backup and schema review.</div>
+            <div id="ai-readiness-box" class="text-sm"></div>
+          </div>
+        </div>
+        <div class="grid-2 mt-3">
+          <div class="card">
+            <div class="card-head">Battery Health Prototype</div>
+            <div class="text-sm text-muted mb-3">Synthetic-data demo model only. Real battery telemetry is not available yet.</div>
+            <button class="btn btn-surface btn-sm" onclick="runHealthPrototype()">Run Demo Prediction</button>
+            <div id="ai-health-result" class="mt-3"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">Demand Prototype</div>
+            <div class="text-sm text-muted mb-3">Synthetic-data demo model only. This is not real Voltride demand forecasting.</div>
+            <button class="btn btn-surface btn-sm" onclick="runDemandPrototype()">Run Demo Prediction</button>
+            <div id="ai-demand-result" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dsec" id="ad-settings">
+        <div class="sec-head">Settings</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">Service Pricing</div>
+            <div class="field"><label>Normal (₹)</label><input class="field-input" value="500"></div>
+            <div class="field"><label>Express (₹)</label><input class="field-input" value="800"></div>
+            <div class="field"><label>Emergency (₹)</label><input class="field-input" value="1200"></div>
+            <button class="btn btn-amber btn-sm" onclick="toast('✅ Pricing updated!')">Save</button>
+          </div>
+          <div class="card">
+            <div class="card-head">Notifications</div>
+            <div class="field"><label>SMS</label><select class="field-input"><option>Enabled</option><option>Disabled</option></select></div>
+            <div class="field"><label>Email</label><select class="field-input"><option>Enabled</option><option>Disabled</option></select></div>
+            <div class="field"><label>Auto-assign (AI)</label><select class="field-input"><option>Enabled</option><option>Manual</option></select></div>
+            <button class="btn btn-amber btn-sm" onclick="toast('✅ Settings saved!')">Save</button>
+            <button class="btn btn-red btn-sm" style="margin-top:8px;" onclick="if(confirm('Reset all data? This cannot be undone.')) clearState()">🗑️ Reset All Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/dealer.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/auth.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var user = requireAuth('admin');
+  if (!user) return;
+  refreshAdm();
+  renderAdmReqs();
+  renderAdmUsers();
+  renderAdmDealers();
+  renderAdmAgents();
+});
+</script>
+
+<script src="js/pwa.js"></script>
+</body>
+</html>

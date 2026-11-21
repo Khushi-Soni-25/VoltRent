@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dealer Dashboard — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="tb4-dark" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" id="tb4-light" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" id="tb4-ev" onclick="setTheme('ev')">⚡</button>
+      </div>
+      <div class="nav-pill"><span>🏪</span><strong id="dn-name">Dealer</strong></div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-label">Dealer</div>
+      <div class="sitem on" onclick="dsDealer('home',this)"><span class="sicon">🏠</span><span class="slabel">Overview</span></div>
+      <div class="sitem" onclick="dsDealer('requests',this)"><span class="sicon">📥</span><span class="slabel">Requests</span></div>
+      <div class="sitem" onclick="dsDealer('inventory',this)"><span class="sicon">🔋</span><span class="slabel">Inventory</span></div>
+      <div class="sitem" onclick="dsDealer('deliveries',this)"><span class="sicon">🚚</span><span class="slabel">Deliveries</span></div>
+      <div class="sitem" onclick="dsDealer('map',this)"><span class="sicon">🗺️</span><span class="slabel">Area Map</span></div>
+    </div>
+    <div class="smain">
+      <div class="dsec on" id="ds-home">
+        <div class="sec-head">Dealer Overview</div>
+        <div class="stats-row">
+          <div class="stat"><div class="stat-val" id="dd-tot">0</div><div class="stat-key">Total Requests</div></div>
+          <div class="stat"><div class="stat-val" id="dd-pend">0</div><div class="stat-key">Pending</div></div>
+          <div class="stat"><div class="stat-val" id="dd-appr">0</div><div class="stat-key">Delivered</div></div>
+          <div class="stat"><div class="stat-val" id="dd-bat">20</div><div class="stat-key">Batteries</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">📥 Incoming Requests <button class="btn btn-amber btn-sm" style="float:right;margin-top:-4px;" onclick="dsDealer('requests',null)">View All →</button></div>
+          <div id="d-incoming"></div>
+        </div>
+      </div>
+
+      <div class="dsec" id="ds-requests">
+        <div class="flex justify-between items-center mb-4">
+          <div class="sec-head" style="margin-bottom:0;">Pending Requests</div>
+          <button class="btn btn-surface btn-sm" onclick="renderDReqs()">🔄 Refresh</button>
+        </div>
+        <div id="d-reqs-list"><div class="empty"><div class="eico">⏳</div>Loading...</div></div>
+      </div>
+
+      <div class="dsec" id="ds-inventory">
+        <div class="sec-head">Inventory</div>
+        <div class="grid-2 mb-4">
+          <div class="inv-box">
+            <div class="inv-ico">🔋</div>
+            <div class="inv-count" id="inv-bat">20</div>
+            <div class="inv-label">Batteries Available</div>
+            <div class="prog-bar mb-3"><div class="prog-fill" id="ib-bar" style="width:80%"></div></div>
+            <div class="inv-btns">
+              <button class="btn btn-green btn-sm" onclick="updInv('bat',5)">+5</button>
+              <button class="btn btn-surface btn-sm" onclick="updInv('bat',1)">+1</button>
+              <button class="btn btn-red btn-sm" onclick="updInv('bat',-1)">-1</button>
+            </div>
+          </div>
+          <div class="inv-box">
+            <div class="inv-ico">🔌</div>
+            <div class="inv-count" id="inv-chg">15</div>
+            <div class="inv-label">Chargers Available</div>
+            <div class="prog-bar mb-3"><div class="prog-fill" id="ic-bar" style="width:75%"></div></div>
+            <div class="inv-btns">
+              <button class="btn btn-green btn-sm" onclick="updInv('chg',5)">+5</button>
+              <button class="btn btn-surface btn-sm" onclick="updInv('chg',1)">+1</button>
+              <button class="btn btn-red btn-sm" onclick="updInv('chg',-1)">-1</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Battery Stock by Type</div>
+          <table>
+            <thead><tr><th>Battery Type</th><th>Compatible EVs</th><th>Qty</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Li-Ion 48V</td><td>Ather 450X, TVS iQube</td><td>8</td><td><span class="badge b-delivered">Available</span></td></tr>
+              <tr><td>Li-Ion 72V</td><td>Nexon EV, ZS EV</td><td>5</td><td><span class="badge b-delivered">Available</span></td></tr>
+              <tr><td>LiFePO4 60V</td><td>Tata Tigor EV</td><td>4</td><td><span class="badge b-delivered">Available</span></td></tr>
+              <tr><td>NMC 400V</td><td>MG ZS, Kia EV6</td><td>3</td><td><span class="badge b-pending">Low Stock</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dsec" id="ds-deliveries">
+        <div class="sec-head">Active Deliveries</div>
+        <div id="d-deliveries-list"></div>
+      </div>
+
+      <div class="dsec" id="ds-map">
+        <div class="sec-head">Coverage Area Map</div>
+        <div class="map-box" style="height:450px;">
+          <div id="dealer-map" style="height:450px;width:100%;"></div>
+        </div>
+        <p class="text-xs text-dim mt-2">Showing your registered service area. Active requests shown as pins.</p>
+      </div>
+    </div>
+  </div>
+<!-- APPROVE MODAL -->
+<div class="modal-bg" id="appr-modal">
+  <div class="modal">
+    <div class="modal-title">Approve & Dispatch <span class="modal-close" onclick="closeM('appr-modal')">✕</span></div>
+    <div class="field"><label>Battery Type</label>
+      <select class="field-input" id="m-btype"><option>Li-Ion 48V</option><option>Li-Ion 72V</option><option>LiFePO4 60V</option><option>NMC 400V</option></select>
+    </div>
+    <div class="field"><label>Assign Agent</label>
+      <select class="field-input" id="m-agent"><option value="auto">Auto-assign nearest</option></select>
+    </div>
+    <div class="field"><label>ETA</label>
+      <select class="field-input" id="m-eta"><option>15–20 min</option><option>20–30 min</option><option>30–45 min</option></select>
+    </div>
+    <div class="field"><label>Note to User</label>
+      <input class="field-input" id="m-note" placeholder="Optional message...">
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-green btn-full" onclick="confirmAppr()">✅ Confirm Dispatch</button>
+      <button class="btn btn-ghost" onclick="closeM('appr-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/dealer.js"></script>
+<script src="js/auth.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var user = requireAuth('dealer');
+  if (!user) return;
+  document.getElementById('dn-name').textContent = user.name;
+  refreshDStats();
+  renderDReqs();
+});
+</script>
+
+<script src="js/pwa.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "selected_model": "random_forest_regressor",
+  "dataset": "C:\\xampp\\htdocs\\voltride (1)\\ml\\datasets\\demand_sample.csv",
+  "dataset_type": "SYNTHETIC",
+  "training_date": "2026-08-13T08:22:35.142788+00:00",
+  "production_validated": false,
+  "note": "These models were trained using synthetic development data and are NOT production-validated.",
+  "features": [
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "month",
+    "location",
+    "request_type",
+    "historical_request_count"
+  ],
+  "target": "demand",
+  "rows": 24,
+  "results": {
+    "linear_regression": {
+      "mae": 0.5179,
+      "rmse": 0.6242,
+      "r2": 0.9521
+    },
+    "random_forest_regressor": {
+      "mae": 0.4817,
+      "rmse": 0.585,
+      "r2": 0.958
+    }
+  }
+}

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="tb2-dark" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" id="tb2-light" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" id="tb2-ev" onclick="setTheme('ev')">⚡</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='login.html'">← Login</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-title">Create Account</div>
+      <div class="auth-sub">Join VoltRide — choose your role</div>
+      <div class="tab-row">
+        <button class="tab-btn on" id="rt-user" onclick="switchRegTab('user')">👤 User</button>
+        <button class="tab-btn" id="rt-dealer" onclick="switchRegTab('dealer')">🏪 Dealer</button>
+        <button class="tab-btn" id="rt-delivery" onclick="switchRegTab('delivery')">🏍️ Agent</button>
+      </div>
+      <div id="reg-alert" class="alert"></div>
+
+      <!-- USER FORM -->
+      <div id="rf-user">
+        <div class="field-row">
+          <div class="field"><label>Full Name *</label><input class="field-input" id="u-name" ></div>
+          <div class="field"><label>Phone *</label><input class="field-input" id="u-phone"></div>
+        </div>
+        <div class="field"><label>Email *</label><input class="field-input" id="u-email" type="email" ></div>
+        <div class="field"><label>Password *</label><input class="field-input" id="u-pass" type="password" placeholder="Minimum 6 chars"></div>
+        <div class="field">
+          <label>Vehicle Type</label>
+          <div class="vtype-grid">
+            <div class="vtype-opt" id="vo-car" onclick="selVeh('car')"><span class="ico">🚗</span>Car/SUV</div>
+            <div class="vtype-opt" id="vo-bike" onclick="selVeh('bike')"><span class="ico">🏍️</span>Bike</div>
+            <div class="vtype-opt sel" id="vo-scooter" onclick="selVeh('scooter')"><span class="ico">🛵</span>Scooter</div>
+          </div>
+        </div>
+        <div class="field"><label>EV Model</label><input class="field-input" id="u-model" placeholder="Ather 450X / Nexon EV / OLA S1"></div>
+        <button class="btn btn-amber btn-full btn-lg mt-3" onclick="doReg('user')">Create Account →</button>
+      </div>
+
+      <!-- DEALER FORM -->
+      <div id="rf-dealer" style="display:none">
+        <div class="field"><label>Shop / Dealership Name *</label><input class="field-input" id="d-name" placeholder="EV Power Hub"></div>
+        <div class="field-row">
+          <div class="field"><label>Email *</label><input class="field-input" id="d-email" placeholder="shop@email.com"></div>
+          <div class="field"><label>Phone *</label><input class="field-input" id="d-phone" placeholder="9876543210"></div>
+        </div>
+        <div class="field"><label>Business Address *</label><input class="field-input" id="d-addr" placeholder="Shop address with area"></div>
+        <div class="field"><label>Password *</label><input class="field-input" id="d-pass" type="password" placeholder="Min 6 chars"></div>
+        <div class="field-row">
+          <div class="field"><label>Batteries in Stock</label><input class="field-input" id="d-batt" type="number" value="20"></div>
+          <div class="field"><label>Chargers in Stock</label><input class="field-input" id="d-charg" type="number" value="10"></div>
+        </div>
+        <button class="btn btn-amber btn-full btn-lg mt-3" onclick="doReg('dealer')">Register Dealership →</button>
+      </div>
+
+      <!-- DELIVERY FORM -->
+      <div id="rf-delivery" style="display:none">
+        <div class="field-row">
+          <div class="field"><label>Full Name *</label><input class="field-input" id="dl-name" ></div>
+          <div class="field"><label>Phone *</label><input class="field-input" id="dl-phone"></div>
+        </div>
+        <div class="field"><label>Email *</label><input class="field-input" id="dl-email" ></div>
+        <div class="field"><label>Password *</label><input class="field-input" id="dl-pass" type="password" placeholder="Min 6 chars"></div>
+        <div class="field-row">
+          <div class="field"><label>Your Vehicle</label>
+            <select class="field-input" id="dl-veh">
+              <option>Motorcycle</option><option>Scooter</option><option>Electric Cycle</option><option>Mini Van</option>
+            </select>
+          </div>
+          <div class="field"><label>Service Area</label><input class="field-input" id="dl-area" placeholder="City/Area"></div>
+        </div>
+        <button class="btn btn-amber btn-full btn-lg mt-3" onclick="doReg('delivery')">Join as Agent →</button>
+      </div>
+
+      <p style="text-align:center;margin-top:1.25rem;font-size:0.85rem;color:var(--text2);">
+        Have account? <a href="#" style="color:var(--amber);font-weight:700;" onclick="window.location.href='login.html'">Login</a>
+      </p>
+    </div>
+  </div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    switchRegTab('user');
+  });
+</script>
+<script src="js/pwa.js"></script>
+
+</body>
+</html>

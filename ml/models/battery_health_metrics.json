@@ -1,0 +1,105 @@
+{
+  "selected_model": "logistic_regression",
+  "dataset": "C:\\xampp\\htdocs\\voltride (1)\\ml\\datasets\\battery_health_sample.csv",
+  "dataset_type": "SYNTHETIC",
+  "training_date": "2026-08-13T08:22:35.122676+00:00",
+  "production_validated": false,
+  "note": "These models were trained using synthetic development data and are NOT production-validated.",
+  "features": [
+    "battery_age_months",
+    "charging_cycles",
+    "average_temperature",
+    "voltage",
+    "current_capacity",
+    "usage_hours",
+    "maintenance_count"
+  ],
+  "target": "health_status",
+  "rows": 21,
+  "results": {
+    "logistic_regression": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          3
+        ]
+      ],
+      "labels": [
+        "Good",
+        "Medium",
+        "Poor"
+      ]
+    },
+    "decision_tree": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          3
+        ]
+      ],
+      "labels": [
+        "Good",
+        "Medium",
+        "Poor"
+      ]
+    },
+    "random_forest": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          0,
+          2,
+          0
+        ],
+        [
+          0,
+          0,
+          3
+        ]
+      ],
+      "labels": [
+        "Good",
+        "Medium",
+        "Poor"
+      ]
+    }
+  }
+}

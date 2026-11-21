@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency EV Battery Rental — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle" title="Switch theme">
+        <button class="theme-btn active" id="tb-dark"  onclick="setTheme('dark')"  title="Dark">🌙</button>
+        <button class="theme-btn"        id="tb-light" onclick="setTheme('light')" title="Light">☀️</button>
+        <button class="theme-btn"        id="tb-ev"    onclick="setTheme('ev')"    title="EV Green">⚡</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='login.html'">Login</button>
+      <button class="btn btn-amber btn-sm" onclick="window.location.href='register.html'">Register Free</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="hero-badge"><span></span> Ahmedabad's #1 EV Emergency Service</div>
+      <h1 class="hero-h1">
+        EV DEAD?<br>
+        <span class="stroke">WE'RE</span><br>
+        ON THE WAY.
+      </h1>
+      <p class="hero-p">Battery out in the middle of nowhere? VoltRide connects you to the nearest dealer and gets a charged battery delivered to your exact GPS location — fast.</p>
+      <div class="hero-btns">
+        <button class="btn btn-amber btn-lg" onclick="window.location.href='register.html'">⚡ Get Emergency Help</button>
+        <button class="btn btn-ghost btn-lg" onclick="window.location.href='login.html'">Already a member?</button>
+      </div>
+      <div style="margin-top:2rem;display:flex;gap:2rem;flex-wrap:wrap;">
+        <div><span style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:var(--amber);">28 min</span><br><span class="text-xs text-dim uppercase">Avg. delivery</span></div>
+        <div><span style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:var(--amber);">94%</span><br><span class="text-xs text-dim uppercase">Success rate</span></div>
+        <div><span style="font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:800;color:var(--amber);">24/7</span><br><span class="text-xs text-dim uppercase">Available</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div id="hero-map" class="hero-map-preview"></div>
+      <div class="hero-steps">
+        <div class="hero-step"><div class="step-num">1</div><div class="step-txt">Share your <span>live GPS location</span> instantly</div></div>
+        <div class="hero-step"><div class="step-num">2</div><div class="step-txt"><span>Nearest dealer</span> confirms battery & dispatches</div></div>
+        <div class="hero-step"><div class="step-num">3</div><div class="step-txt">Delivery agent brings battery <span>right to you</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="role-grid" style="margin: 0 2rem 3rem;">
+    <div class="role-c" onclick="regAs('user')">
+      <div class="role-ico">🛵</div>
+      <div class="role-name">EV Owner</div>
+      <div class="role-desc">Stranded EV? Request battery or portable charger and get real-time delivery to your GPS location.</div>
+      <div class="role-cta">Register as User →</div>
+    </div>
+    <div class="role-c" onclick="regAs('dealer')">
+      <div class="role-ico">🏪</div>
+      <div class="role-name">Battery Dealer</div>
+      <div class="role-desc">Manage inventory, approve requests, and coordinate delivery. Expand your business reach.</div>
+      <div class="role-cta">Join as Dealer →</div>
+    </div>
+    <div class="role-c" onclick="regAs('delivery')">
+      <div class="role-ico">🏍️</div>
+      <div class="role-name">Delivery Agent</div>
+      <div class="role-desc">Flexible earnings. Pick up batteries from dealers and deliver them to users on the map.</div>
+      <div class="role-cta">Join as Agent →</div>
+    </div>
+  </div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/maps.js"></script>
+<script>
+  setTimeout(initHeroMap, 300);
+</script>
+
+<script src="js/pwa.js"></script>
+
+</body>
+</html>

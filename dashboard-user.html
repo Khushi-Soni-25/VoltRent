@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Dashboard — VoltRide</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script>(function(){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';document.head.appendChild(sc);})();</script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5C518">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VoltRide">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<!-- PAYMENT MODAL -->
+<div class="modal-bg" id="pay-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">💳 Complete Payment <span class="modal-close" onclick="closePayment()">✕</span></div>
+
+    <div id="pay-form">
+      <!-- Order Summary -->
+      <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:0.75rem;color:var(--text3);">Request ID</div>
+            <div style="font-weight:700;" id="pay-req-id">REQ-000</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.75rem;color:var(--text3);">Amount</div>
+            <div style="font-size:1.5rem;font-weight:800;color:var(--amber);" id="pay-amount">₹500</div>
+          </div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text3);margin-top:4px;" id="pay-service"></div>
+      </div>
+
+      <!-- Payment Methods -->
+      <div style="font-size:0.75rem;color:var(--text3);margin-bottom:8px;">SELECT PAYMENT METHOD</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="pay-method-btn active" id="pm-upi" onclick="selPayMethod('upi')">📱 UPI</button>
+        <button class="pay-method-btn" id="pm-card" onclick="selPayMethod('card')">💳 Card</button>
+        <button class="pay-method-btn" id="pm-netbanking" onclick="selPayMethod('netbanking')">🏦 Net Banking</button>
+        <button class="pay-method-btn" id="pm-cod" onclick="selPayMethod('cod')">💵 COD</button>
+      </div>
+
+      <!-- UPI Section -->
+      <div id="ps-upi">
+        <div style="font-size:0.75rem;color:var(--text3);margin-bottom:8px;">CHOOSE UPI APP</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div class="upi-opt" id="upi-gpay" onclick="selUPI('gpay')">
+            <span style="font-size:1.5rem;">🟢</span> Google Pay
+          </div>
+          <div class="upi-opt" id="upi-phonepe" onclick="selUPI('phonepe')">
+            <span style="font-size:1.5rem;">🟣</span> PhonePe
+          </div>
+          <div class="upi-opt" id="upi-paytm" onclick="selUPI('paytm')">
+            <span style="font-size:1.5rem;">🔵</span> Paytm
+          </div>
+          <div class="upi-opt" id="upi-bhim" onclick="selUPI('bhim')">
+            <span style="font-size:1.5rem;">🟠</span> BHIM
+          </div>
+        </div>
+        <div class="field">
+          <label>Or enter UPI ID</label>
+          <input class="field-input" placeholder="yourname@upi" id="upi-id-input">
+        </div>
+      </div>
+
+      <!-- Card Section -->
+      <div id="ps-card" style="display:none;">
+        <div class="field">
+          <label>Card Number</label>
+          <input class="field-input" id="card-num" placeholder="1234 5678 9012 3456" maxlength="19"
+            oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="field"><label>Expiry</label><input class="field-input" id="card-exp" placeholder="MM/YY" maxlength="5"></div>
+          <div class="field"><label>CVV</label><input class="field-input" id="card-cvv" placeholder="123" maxlength="3" type="password"></div>
+        </div>
+        <div class="field"><label>Name on Card</label><input class="field-input" id="card-name" placeholder="Your Name"></div>
+      </div>
+
+      <!-- Net Banking Section -->
+      <div id="ps-netbanking" style="display:none;">
+        <div class="field">
+          <label>Select Bank</label>
+          <select class="field-input" id="nb-bank">
+            <option value="">-- Choose your bank --</option>
+            <option>State Bank of India</option>
+            <option>HDFC Bank</option>
+            <option>ICICI Bank</option>
+            <option>Axis Bank</option>
+            <option>Kotak Mahindra Bank</option>
+            <option>Bank of Baroda</option>
+            <option>Punjab National Bank</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- COD Section -->
+      <div id="ps-cod" style="display:none;">
+        <div style="background:var(--surface2);border-radius:10px;padding:16px;text-align:center;">
+          <div style="font-size:2rem;">💵</div>
+          <div style="font-weight:700;margin-top:8px;">Cash on Delivery</div>
+          <div style="font-size:0.82rem;color:var(--text3);margin-top:4px;">Pay when the agent arrives at your location</div>
+        </div>
+      </div>
+
+      <button class="btn btn-amber btn-full btn-lg" style="margin-top:16px;" onclick="confirmPayment()">
+        Pay <span id="pay-btn-amount">₹500</span> →
+      </button>
+    </div>
+
+    <div id="pay-result" style="display:none;"></div>
+  </div>
+</div>
+<script src="js/payment.js"></script>
+<body>
+<nav class="navbar">
+    <div class="nav-logo"><div class="dot"></div> VOLTRIDE</div>
+    <div class="nav-right">
+      <div class="theme-toggle">
+        <button class="theme-btn active" id="tb3-dark" onclick="setTheme('dark')">🌙</button>
+        <button class="theme-btn" id="tb3-light" onclick="setTheme('light')">☀️</button>
+        <button class="theme-btn" id="tb3-ev" onclick="setTheme('ev')">⚡</button>
+      </div>
+      <div class="nav-pill"><span>👤</span><strong id="un-name">User</strong></div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-label">Main</div>
+      <div class="sitem on" onclick="dsUser('home',this)"><span class="sicon">⚡</span><span class="slabel">Dashboard</span></div>
+      <div class="sitem" onclick="dsUser('request',this)"><span class="sicon">🔋</span><span class="slabel">Request Battery</span></div>
+      <div class="sitem" onclick="dsUser('orders',this)"><span class="sicon">📋</span><span class="slabel">My Requests</span></div>
+      <div class="sitem" onclick="dsUser('track',this)"><span class="sicon">📍</span><span class="slabel">Track Order</span></div>
+      <div class="sidebar-label">Account</div>
+      <div class="sitem" onclick="dsUser('profile',this)"><span class="sicon">👤</span><span class="slabel">Profile</span></div>
+    </div>
+    <div class="smain">
+
+      <!-- HOME -->
+      <div class="dsec on" id="us-home">
+        <div class="sec-head">Dashboard</div>
+        <div class="stats-row" id="u-stats-row">
+          <div class="stat"><div class="stat-val" id="us-tot">0</div><div class="stat-key">Total Requests</div></div>
+          <div class="stat"><div class="stat-val" id="us-pend">0</div><div class="stat-key">Pending</div></div>
+          <div class="stat"><div class="stat-val" id="us-del">0</div><div class="stat-key">Delivered</div></div>
+          <div class="stat"><div class="stat-val">24/7</div><div class="stat-key">Support</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">⚡ Quick Actions</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-amber btn-full" onclick="dsUser('request',null);selStype('replacement')">🔋 Battery Replacement</button>
+              <button class="btn btn-surface btn-full" onclick="dsUser('request',null);selStype('charger')">🔌 Portable Charger</button>
+              <button class="btn btn-surface btn-full" onclick="dsUser('request',null);selStype('swap')">🔄 Battery Swap</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head">📊 Recent Activity</div>
+            <div id="u-recent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REQUEST -->
+      <div class="dsec" id="us-request">
+        <div class="sec-head">Request Battery Service</div>
+        <div class="card" style="max-width:580px;">
+          <div id="req-alert" class="alert"></div>
+
+          <div class="field">
+            <label>Service Type</label>
+            <div class="stype-grid">
+              <div class="stype-opt sel" id="st-replacement" onclick="selStype('replacement')"><span class="ico">🔋</span>Battery Replacement</div>
+              <div class="stype-opt" id="st-charger" onclick="selStype('charger')"><span class="ico">🔌</span>Portable Charger</div>
+              <div class="stype-opt" id="st-swap" onclick="selStype('swap')"><span class="ico">🔄</span>Battery Swap</div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field"><label>Vehicle Number</label><input class="field-input" id="rq-vno" placeholder="GJ-01-XX-0000"></div>
+            <div class="field"><label>EV Model</label><input class="field-input" id="rq-model" placeholder="Ather 450X"></div>
+          </div>
+
+          <!-- LOCATION — map + GPS -->
+          <div class="field">
+            <label>Your Location <span style="color:var(--amber);font-size:0.75rem;font-weight:700;">● LIVE MAP</span></label>
+
+            <!-- Map always visible -->
+            <div id="req-map-box" style="position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;">
+              <div id="req-map" style="height:280px;width:100%;"></div>
+              <!-- GPS button over map -->
+              <button onclick="getMyGPS()" id="gps-map-btn" style="
+                position:absolute;top:10px;right:10px;z-index:500;
+                background:var(--amber);border:none;border-radius:8px;
+                padding:8px 14px;font-weight:700;font-size:0.82rem;
+                cursor:pointer;display:flex;align-items:center;gap:6px;
+                box-shadow:0 2px 12px rgba(0,0,0,0.4);font-family:inherit;">
+                📡 Use My GPS
+              </button>
+              <!-- Map tip -->
+              <div id="map-tip" style="
+                position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:500;
+                background:rgba(0,0,0,0.75);color:#fff;border-radius:20px;
+                padding:5px 14px;font-size:0.75rem;white-space:nowrap;pointer-events:none;">
+                Click map to set location • or use GPS button
+              </div>
+            </div>
+
+            <!-- Address search below map -->
+            <div style="display:flex;gap:8px;margin-bottom:6px;">
+              <input class="field-input" id="addr-search"
+               
+                style="flex:1;"
+                oninput="searchAddrLive(this.value)"
+                onkeydown="if(event.key==='Enter')searchAddr()">
+              <button class="btn btn-surface btn-sm" onclick="searchAddr()" style="white-space:nowrap;">Search</button>
+            </div>
+            <div id="addr-results"></div>
+
+            <!-- Confirmed location bar -->
+            <div class="location-bar" id="loc-bar" style="display:none;margin-top:6px;">
+              <div class="location-dot active" id="loc-dot"></div>
+              <div class="location-text set" id="loc-text"></div>
+            </div>
+
+            <input type="hidden" id="rq-lat">
+            <input type="hidden" id="rq-lng">
+            <input type="hidden" id="rq-addr">
+            <input type="hidden" id="rq-ai-dealer">
+          </div>
+
+          <div class="field">
+            <label>Priority Level</label>
+            <div class="priority-row">
+              <div class="p-opt sel-n" id="pr-normal" onclick="selPriority('normal')">🟢 Normal<br><small>₹500 · 30–45 min</small></div>
+              <div class="p-opt" id="pr-express" onclick="selPriority('express')">🟡 Express<br><small>₹800 · 15–25 min</small></div>
+              <div class="p-opt" id="pr-emergency" onclick="selPriority('emergency')">🔴 Emergency<br><small>₹1200 · &lt;15 min</small></div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field"><label>Need Technician?</label>
+              <select class="field-input" id="rq-tech">
+                <option value="no">No, just delivery</option>
+                <option value="yes">Yes, installation help</option>
+              </select>
+            </div>
+            <div class="field"><label>Additional Notes</label>
+              <input class="field-input" id="rq-notes" placeholder="Any special info...">
+            </div>
+          </div>
+
+          <div class="card" style="background:var(--surface2);margin-bottom:1rem;">
+            <div class="card-head">Voltrent AI Recommendation</div>
+            <div class="text-sm text-muted mb-3">Optional live dealer recommendation. Synthetic health and demand models are not used for this request.</div>
+            <button class="btn btn-surface btn-sm" onclick="getUserAiRecommendation()">Get AI Recommendation</button>
+            <div id="user-ai-rec-result" class="mt-3"></div>
+          </div>
+
+          <button class="btn btn-amber btn-full btn-lg mt-2" onclick="submitReq()">
+            🚀 Submit Request
+          </button>
+        </div>
+      </div>
+
+      <!-- MY ORDERS -->
+      <div class="dsec" id="us-orders">
+        <div class="flex justify-between items-center mb-4">
+          <div class="sec-head" style="margin-bottom:0;">My Requests</div>
+          <button class="btn btn-amber btn-sm" onclick="dsUser('request',null)">+ New</button>
+        </div>
+        <div id="u-orders-list"></div>
+      </div>
+
+      <!-- TRACK -->
+      <div class="dsec" id="us-track">
+        <div class="sec-head">Track Order</div>
+        <div class="card" style="max-width:500px;">
+          <div class="field">
+            <label>Enter Request ID</label>
+            <div style="display:flex;gap:8px;">
+              <input class="field-input" id="trk-id" placeholder="REQ-001" style="flex:1;">
+              <button class="btn btn-amber" onclick="doTrack()">Track</button>
+            </div>
+          </div>
+          <div id="trk-result" style="display:none;margin-top:1rem;">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs text-dim uppercase font-bold">Order Status</span>
+              <span id="trk-badge"></span>
+            </div>
+            <div class="timeline" id="trk-tl"></div>
+            <!-- Tracking Map -->
+            <div style="margin-top:1rem;">
+              <div class="text-xs text-dim uppercase font-bold mb-2">Live Tracking Map</div>
+              <div class="map-box" style="height:200px;">
+                <div id="track-map" style="height:200px;width:100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="dsec" id="us-profile">
+        <div class="sec-head">My Profile</div>
+        <div class="card" style="max-width:440px;" id="u-profile-card"></div>
+      </div>
+
+    </div>
+  </div>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/request.js"></script>
+<script src="js/auth.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  var user = requireAuth('user');
+  if (!user) return;
+  document.getElementById('un-name').textContent = user.name;
+  selStype('replacement');
+  selPriority('normal');
+  refreshUStats();
+});
+</script>
+<script src="js/pwa.js"></script>
+
+</body>
+</html>
