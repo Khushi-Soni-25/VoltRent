@@ -2,26 +2,10 @@
 // Optional AI endpoint: dealer-level battery/service recommendation.
 // Read-only. Does not modify existing Voltride data.
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/ml_client.php';
 
-function aiRunPython($script, $payload) {
-    $json = json_encode($payload, JSON_UNESCAPED_UNICODE);
-    $inputFile = tempnam(sys_get_temp_dir(), 'voltride_ai_');
-    if ($inputFile === false || file_put_contents($inputFile, $json) === false) {
-        return ['status' => 'error', 'message' => 'Could not prepare AI recommendation input.'];
-    }
-    try {
-        $cmd = 'python ' . escapeshellarg($script) . ' --input-file ' . escapeshellarg($inputFile);
-        $output = [];
-        $code = 0;
-        exec($cmd, $output, $code);
-        if ($code !== 0 || !$output) {
-            return ['status' => 'error', 'message' => 'AI recommendation script failed.'];
-        }
-    } finally {
-        @unlink($inputFile);
-    }
-    $decoded = json_decode(implode("\n", $output), true);
-    return $decoded ?: ['status' => 'error', 'message' => 'Invalid AI recommendation response.'];
+function aiRunMlRecommendation($payload) {
+    return aiMlApiRequest('/recommendations/battery', $payload);
 }
 
 function aiFetchDealersReadOnly(&$warning = null) {
@@ -78,18 +62,7 @@ if (!$dealers) {
     ]);
 }
 
-$script = realpath(__DIR__ . '/../../ml/recommendation/battery_recommender.py');
-if (!$script) {
-    jsonResponse([
-        'success' => false,
-        'status' => 'error',
-        'type' => 'real_data_recommendation',
-        'data_source' => $dataSource,
-        'message' => 'Recommendation module is missing.',
-    ]);
-}
-
-$result = aiRunPython($script, [
+$result = aiRunMlRecommendation([
     'request' => $body ?: new stdClass(),
     'dealers' => $dealers,
 ]);

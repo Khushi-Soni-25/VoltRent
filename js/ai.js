@@ -39,12 +39,22 @@ function renderAdminAi() {
 }
 
 function aiPost(endpoint, payload, onDone) {
-  fetch(API_BASE + '/ai/' + endpoint + '.php', {
+  var url = mlApiUrl(endpoint);
+  if (!url) {
+    onDone({ status: 'error', message: 'AI service is not configured.' });
+    return;
+  }
+  fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload || {})
   })
-  .then(function(r) { return r.json(); })
+  .then(function(r) {
+    return r.json().catch(function() { return {}; }).then(function(body) {
+      if (!r.ok) throw new Error(body.detail || body.message || 'AI request failed.');
+      return body;
+    });
+  })
   .then(function(res) { onDone(res); })
   .catch(function(err) {
     onDone({ status: 'error', message: 'AI service unavailable: ' + err.message });
@@ -112,7 +122,7 @@ function runAiRecommendation() {
     user_lat: parseFloat(v('ai-rec-lat')),
     user_lng: parseFloat(v('ai-rec-lng'))
   };
-  aiPost('recommend_battery', payload, function(res) {
+  aiPost('recommendations/battery', { request: payload }, function(res) {
     if (!res || res.status !== 'ok') {
       aiSetBox('ai-rec-result',
         '<div class="alert alert-err show">' + aiEscape((res && res.message) || 'No recommendation available') + '</div>'
@@ -156,7 +166,7 @@ function runAiRecommendation() {
 
 function runHealthPrototype() {
   aiSetBox('ai-health-result', '<div class="text-sm text-muted">Running synthetic-data demo model...</div>');
-  aiPost('predict_health', {
+  aiPost('predict/health', {
     battery_age_months: 18,
     charging_cycles: 320,
     average_temperature: 34.5,
@@ -180,7 +190,7 @@ function runHealthPrototype() {
 
 function runDemandPrototype() {
   aiSetBox('ai-demand-result', '<div class="text-sm text-muted">Running synthetic-data demo model...</div>');
-  aiPost('predict_demand', {
+  aiPost('predict/demand', {
     hour: 18,
     day_of_week: 5,
     is_weekend: 1,

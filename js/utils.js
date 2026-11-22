@@ -70,7 +70,12 @@ function stypeLabel(t) {
 /* ── MYSQL API HELPERS ── */
 var USE_API  = true;   // ← MySQL enabled. Set false to use localStorage only
 var API_BASE = 'api';      // ← path to api/ folder on your server
+var ML_API_BASE = String((window.VOLTRENT_CONFIG || {}).mlApiBaseUrl || '').replace(/\/$/, '');
 
+function mlApiUrl(path) {
+  if (!ML_API_BASE) return '';
+  return ML_API_BASE + '/' + String(path || '').replace(/^\//, '');
+}
 function apiCall(endpoint, data, onSuccess, onError) {
   if (!USE_API) { if (onSuccess) onSuccess(null); return; }
   fetch(API_BASE + '/' + endpoint + '.php', {

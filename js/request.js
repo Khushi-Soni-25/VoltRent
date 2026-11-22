@@ -166,17 +166,27 @@ function getUserAiRecommendation() {
   var hidden = document.getElementById('rq-ai-dealer');
   if (hidden) hidden.value = '';
   box.innerHTML = '<div class="text-sm text-muted">Checking live dealer inventory...</div>';
-  fetch(API_BASE + '/ai/recommend_battery.php', {
+  var recommendationUrl = mlApiUrl('recommendations/battery');
+  if (!recommendationUrl) {
+    box.innerHTML = '<div class="alert alert-info show">AI recommendation is not configured. You can continue with the normal request process.</div>';
+    return;
+  }
+  fetch(recommendationUrl, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
+    body: JSON.stringify({ request: {
       service_type: S.selStype || 'replacement',
       priority: S.selPriority || 'normal',
       user_lat: parseFloat(lat),
       user_lng: parseFloat(lng)
-    })
+    } })
   })
-  .then(function(r){ return r.json(); })
+  .then(function(r){
+    return r.json().catch(function() { return {}; }).then(function(body) {
+      if (!r.ok) throw new Error(body.detail || 'AI request failed.');
+      return body;
+    });
+  })
   .then(function(res){ renderUserAiRecommendation(res); })
   .catch(function(){
     box.innerHTML = '<div class="alert alert-info show">AI recommendation is currently unavailable. You can continue with the normal request process.</div>';
